@@ -1,9 +1,9 @@
 package de.tajoa.util.codefix;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -19,11 +19,12 @@ public class Dictionary {
 	}
 
 	public void addDictionaryFile(Path dicFile, Charset charset, String... filter) {
+		System.out.println("Loading dictionary: " + dicFile + ", " + charset + ", Filter: " + Arrays.toString(filter));
 		try (Stream<String> stream = Files.lines(dicFile, charset)) {
-			boolean filterEmtpy = filter.length != 0;
+			boolean filterEmtpy = filter.length == 0;
 			stream.filter(w -> filterEmtpy || StringUtils.containsAny(w, filter)).forEach(w -> this.dictionary.add(w));
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -34,4 +35,6 @@ public class Dictionary {
 	public boolean contains(String tryS) {
 		return this.dictionary.contains(tryS);
 	}
+	
+	
 }

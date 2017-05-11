@@ -4,17 +4,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class ReplaceWordFix implements Fix {
+public class ReplaceUsingDictionaryFix implements Fix {
 
 	private final String toBeReplaced;
 	private final String wordBoundRegex;
@@ -22,13 +29,14 @@ public class ReplaceWordFix implements Fix {
 	private final Dictionary dictionary;
 	private final Collection<String> replacements;
 
-	public ReplaceWordFix(String toBeReplaced, Charset charset, Dictionary dictionary, String... replacements) {
-		System.out.println("Replace-Word-Fix ["+toBeReplaced+" -> "+ Arrays.toString(replacements)+"]");
+	public ReplaceUsingDictionaryFix(String toBeReplaced, Charset charset, Dictionary dictionary,
+			String... replacements) {
 		this.toBeReplaced = toBeReplaced;
 		this.wordBoundRegex = toWordBoundRegex(toBeReplaced);
 		this.charset = charset;
 		this.dictionary = dictionary;
 		this.replacements = Arrays.asList(replacements);
+		System.out.println(this);
 	}
 
 	/**
@@ -45,7 +53,7 @@ public class ReplaceWordFix implements Fix {
 		}
 		return Pair.of(inputFile.getKey(), result.getBytes(charset));
 	}
-	
+
 	private String handleMatchedWord(String input, String matchedWord) {
 		List<String> possibleReplacements = this.possibleReplacements(matchedWord);
 		if (possibleReplacements.size() == 1) {
@@ -73,9 +81,9 @@ public class ReplaceWordFix implements Fix {
 		}
 		return handleAmbigiusReplacement(input, matchedWord, possibleReplacements);
 	}
-	
-	private static String toWordBoundRegex(String toBeReplaced){
-		return "\\w*"+toBeReplaced+"\\w*";
+
+	private static String toWordBoundRegex(String toBeReplaced) {
+		return "\\w*" + toBeReplaced + "\\w*";
 	}
 
 	public List<String> possibleReplacements(String matchedWord) {
@@ -87,4 +95,11 @@ public class ReplaceWordFix implements Fix {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		return Integer.parseInt(br.readLine());
 	}
+
+	@Override
+	public String toString() {
+		return "ReplaceUsingDictionaryFix [toBeReplaced=" + toBeReplaced
+				+ ", charset=" + charset + ", replacements=" + replacements + "]";
+	}
+
 }
